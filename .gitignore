@@ -216,3 +216,59 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ============================================================
+# 前端 / Electron / Node.js
+# ============================================================
+
+# Node.js 依赖
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# 前端构建产物（注意：不要与 Python 的 dist/ 混淆）
+# Python 的 dist/ 用于打包 Python 包，前端的 dist/ 用于构建产物
+frontend/dist/
+frontend/build/
+frontend/.next/
+frontend/out/
+
+# 前端本地配置
+frontend/.env.local
+frontend/.env.development.local
+frontend/.env.test.local
+frontend/.env.production.local
+
+# 前端缓存
+frontend/.cache/
+frontend/.parcel-cache/
+frontend/.vite/
+
+# ============================================================
+# 项目特定
+# ============================================================
+
+# 本地数据库文件（你的项目会产生这些）
+*.db
+*.sqlite
+*.sqlite3
+
+# 临时文件
+*.tmp
+*.temp
+*.log
+
+# 操作系统
+Thumbs.db
+.DS_Store
+Desktop.ini
+
+# IDE（PyCharm / VS Code）
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
