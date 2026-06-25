@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { scanDirectory, ScanResult } from '../services/backend'
+import { NavigateTarget, PageKey } from '../App'
 
-interface Props { backendOnline: boolean }
+interface Props { backendOnline: boolean; navigateTo: (t: PageKey | NavigateTarget) => void }
 
 const KNOWN_FOLDERS = ['桌面', '下载', '文档', '图片', '音乐', '视频']
 const FOLDER_MAP: Record<string, string> = {
@@ -9,7 +10,7 @@ const FOLDER_MAP: Record<string, string> = {
   '图片': 'Pictures', '音乐': 'Music', '视频': 'Videos',
 }
 
-const ScanPage: React.FC<Props> = ({ backendOnline }) => {
+const ScanPage: React.FC<Props> = ({ backendOnline, navigateTo }) => {
   const [selected, setSelected] = useState<string[]>(KNOWN_FOLDERS)
   const [customPath, setCustomPath] = useState('')
   const [scanning, setScanning] = useState(false)
@@ -86,6 +87,11 @@ const ScanPage: React.FC<Props> = ({ backendOnline }) => {
             <div className="result-item"><span className="result-value">{result.total_files.toLocaleString()}</span><span className="result-label">文件数</span></div>
             <div className="result-item"><span className="result-value">{formatSize(result.total_size)}</span><span className="result-label">总大小</span></div>
             <div className="result-item"><span className="result-value">{result.duration_sec.toFixed(2)}s</span><span className="result-label">耗时</span></div>
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <button className="btn-primary" onClick={() => navigateTo({ page: 'migrate', params: { source: FOLDER_MAP[selected[0]] || selected[0] } })}>
+              去迁移已扫描的文件
+            </button>
           </div>
         </div>
       )}

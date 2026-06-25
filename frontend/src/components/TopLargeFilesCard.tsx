@@ -1,18 +1,19 @@
 import React from 'react'
 import { TopLargeFile } from '../services/backend'
+import { NavigateTarget, PageKey } from '../App'
 
 interface Props {
   files: Record<string, TopLargeFile[]>
+  navigateTo: (t: PageKey | NavigateTarget) => void
 }
 
 const formatSize = (bytes: number): string => {
   if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`
   if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(1)} MB`
-  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`
-  return `${bytes} B`
+  return `${(bytes / 1024).toFixed(0)} KB`
 }
 
-const TopLargeFilesCard: React.FC<Props> = ({ files }) => {
+const TopLargeFilesCard: React.FC<Props> = ({ files, navigateTo }) => {
   const drives = Object.keys(files)
   const hasAny = drives.some((d) => files[d].length > 0)
 
@@ -38,11 +39,20 @@ const TopLargeFilesCard: React.FC<Props> = ({ files }) => {
               <div className="file-list-header">
                 <span className="col-name">文件名</span>
                 <span className="col-size">大小</span>
+                <span className="col-action"></span>
               </div>
               {list.map((file) => (
                 <div key={file.id} className="file-row" title={file.path}>
                   <span className="col-name">{file.name}</span>
                   <span className="col-size">{formatSize(file.size)}</span>
+                  <span className="col-action">
+                    <button
+                      className="btn-mini"
+                      onClick={() => navigateTo({ page: 'migrate', params: { sourcePath: file.path } })}
+                    >
+                      迁移
+                    </button>
+                  </span>
                 </div>
               ))}
             </div>

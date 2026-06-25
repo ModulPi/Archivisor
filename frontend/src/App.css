@@ -541,6 +541,19 @@ body {
 
 .col-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding-right: 12px; }
 .col-size { flex-shrink: 0; font-family: Consolas, monospace; color: var(--accent-yellow); min-width: 80px; text-align: right; }
+.col-action { flex-shrink: 0; min-width: 50px; text-align: right; }
+
+.btn-mini {
+  padding: 2px 8px;
+  font-size: 11px;
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.btn-mini:hover { background: var(--accent); color: white; }
 
 /* Unmigrated */
 

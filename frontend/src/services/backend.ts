@@ -110,8 +110,8 @@ export function createMigrationPlan(
   return rpc('migrate', { action: 'create_plan', source, target, filters })
 }
 
-/** 执行迁移 */
-export function executeMigration(planId: number): Promise<{ plan_id: number; execute_ok: boolean }> {
+/** 执行迁移（异步，需轮询 status 获取进度） */
+export function executeMigration(planId: number): Promise<{ plan_id: number; started: boolean; message?: string }> {
   return rpc('migrate', { action: 'execute', plan_id: planId })
 }
 

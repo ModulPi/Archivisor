@@ -133,8 +133,14 @@ def handle_migrate(params: dict) -> dict:
     elif action == "execute":
         plan_id = params["plan_id"]
         tq, rq = _ensure_worker()
-        ok = execute_migration(plan_id, tq, rq)
-        return {"plan_id": plan_id, "execute_ok": ok}
+        # 异步执行，不阻塞 RPC 响应
+        def _run():
+            try:
+                execute_migration(plan_id, tq, rq)
+            except Exception:
+                pass
+        threading.Thread(target=_run, daemon=True).start()
+        return {"plan_id": plan_id, "started": True, "message": "迁移已开始，请轮询 status 获取进度"}
 
     elif action == "commit":
         plan_id = params["plan_id"]

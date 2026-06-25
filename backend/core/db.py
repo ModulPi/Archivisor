@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS migration_manifest (
     status              TEXT DEFAULT 'pending',      -- pending | copying | verified | committed | rolled_back
     file_count          INTEGER DEFAULT 0,
     total_size          INTEGER DEFAULT 0,
+    files_copied        INTEGER DEFAULT 0,           -- 实时进度: 已复制文件数
     created_at          REAL DEFAULT (strftime('%s', 'now')),
     committed_at        REAL
 );

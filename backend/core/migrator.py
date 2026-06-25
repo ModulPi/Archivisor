@@ -127,7 +127,7 @@ def execute_migration(plan_id: int, task_queue: Queue, result_queue: Queue) -> b
 
     # 更新状态为 copying
     conn.execute(
-        "UPDATE migration_manifest SET status='copying' WHERE id=?",
+        "UPDATE migration_manifest SET status='copying', files_copied=0 WHERE id=?",
         (plan_id,),
     )
     conn.commit()
@@ -140,7 +140,6 @@ def execute_migration(plan_id: int, task_queue: Queue, result_queue: Queue) -> b
 
         info = event["data"]
         source_file = info["path"]
-        # 保持相对路径结构
         rel_path = os.path.relpath(source_file, source_path)
         target_root = os.path.join(target_path, Path(source_path).name)
 
@@ -156,20 +155,28 @@ def execute_migration(plan_id: int, task_queue: Queue, result_queue: Queue) -> b
         })
         sent_count += 1
 
-    # 等待 Worker 完成所有文件
+    # 等待 Worker 完成所有文件，实时更新进度
     failed = []
+    copied = 0
     for _ in range(sent_count):
-        result = result_queue.get(timeout=300)  # 5 分钟超时
+        result = result_queue.get(timeout=300)
+        copied += 1
         if not result.get("ok"):
             failed.append(result)
+        # 每 10 个文件更新一次进度到数据库
+        if copied % 10 == 0 or copied == sent_count:
+            conn.execute(
+                "UPDATE migration_manifest SET files_copied=? WHERE id=?",
+                (copied, plan_id),
+            )
+            conn.commit()
 
     if failed:
         conn.execute(
-            "UPDATE migration_manifest SET status='pending' WHERE id=?",
+            "UPDATE migration_manifest SET status='pending', files_copied=0 WHERE id=?",
             (plan_id,),
         )
         conn.commit()
-        # 写入失败详情到审计日志
         _write_audit_log(plan_id, failed)
         return False
 
