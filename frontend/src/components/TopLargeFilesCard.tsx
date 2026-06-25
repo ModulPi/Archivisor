@@ -2,7 +2,7 @@ import React from 'react'
 import { TopLargeFile } from '../services/backend'
 
 interface Props {
-  files: TopLargeFile[]
+  files: Record<string, TopLargeFile[]>
 }
 
 const formatSize = (bytes: number): string => {
@@ -13,7 +13,10 @@ const formatSize = (bytes: number): string => {
 }
 
 const TopLargeFilesCard: React.FC<Props> = ({ files }) => {
-  if (!files || files.length === 0) {
+  const drives = Object.keys(files)
+  const hasAny = drives.some((d) => files[d].length > 0)
+
+  if (!hasAny) {
     return (
       <div className="card">
         <h3 className="card-title">大文件排行</h3>
@@ -24,19 +27,28 @@ const TopLargeFilesCard: React.FC<Props> = ({ files }) => {
 
   return (
     <div className="card">
-      <h3 className="card-title">大文件 Top {files.length}</h3>
-      <div className="file-list">
-        <div className="file-list-header">
-          <span className="col-name">文件名</span>
-          <span className="col-size">大小</span>
-        </div>
-        {files.map((file) => (
-          <div key={file.id} className="file-row" title={file.path}>
-            <span className="col-name">{file.name}</span>
-            <span className="col-size">{formatSize(file.size)}</span>
+      <h3 className="card-title">大文件排行</h3>
+      {drives.map((drive) => {
+        const list = files[drive]
+        if (list.length === 0) return null
+        return (
+          <div key={drive} className="drive-section">
+            <h4 className="drive-section-title">{drive} 盘</h4>
+            <div className="file-list">
+              <div className="file-list-header">
+                <span className="col-name">文件名</span>
+                <span className="col-size">大小</span>
+              </div>
+              {list.map((file) => (
+                <div key={file.id} className="file-row" title={file.path}>
+                  <span className="col-name">{file.name}</span>
+                  <span className="col-size">{formatSize(file.size)}</span>
+                </div>
+              ))}
+            </div>
           </div>
-        ))}
-      </div>
+        )
+      })}
     </div>
   )
 }

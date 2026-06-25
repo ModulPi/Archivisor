@@ -40,7 +40,7 @@ const DiskUsageCard: React.FC<Props> = ({ disks }) => {
               </div>
               <div className="disk-stats">
                 <span>已用 {formatGB(disk.used_gb)} / 共 {formatGB(disk.total_gb)}</span>
-                <span className="disk-user-data">用户数据 {formatGB(disk.user_data_gb)}</span>
+                <span className="disk-user-data">已索引 {formatGB(disk.indexed_gb)}</span>
               </div>
             </div>
           )

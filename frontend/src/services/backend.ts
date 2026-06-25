@@ -20,7 +20,7 @@ export interface DiskUsage {
   total_gb: number
   used_gb: number
   free_gb: number
-  user_data_gb: number
+  indexed_gb: number
 }
 
 export interface TopLargeFile {
@@ -38,7 +38,7 @@ export interface UnmigratedSummary {
 
 export interface DashboardData {
   disks: DiskUsage[]
-  top_large_files: TopLargeFile[]
+  top_large_files: Record<string, TopLargeFile[]>  // { "C:": [...], "D:": [...] }
   unmigrated: UnmigratedSummary
 }
 
@@ -83,7 +83,7 @@ export function queryDiskUsage(): Promise<{ disks: DiskUsage[] }> {
 }
 
 /** 查询大文件 Top N */
-export function queryTopLarge(limit: number = 20): Promise<{ files: TopLargeFile[] }> {
+export function queryTopLarge(limit: number = 20): Promise<{ files: Record<string, TopLargeFile[]> }> {
   return rpc('query', { type: 'top_large', limit })
 }
 

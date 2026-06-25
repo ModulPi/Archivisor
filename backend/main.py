@@ -213,23 +213,37 @@ def _query_disk_usage() -> list[dict]:
             "total_gb": round(usage.total / (1024 ** 3), 2),
             "used_gb": round(usage.used / (1024 ** 3), 2),
             "free_gb": round(usage.free / (1024 ** 3), 2),
-            "user_data_gb": round(row[0] / (1024 ** 3), 2),
+            "indexed_gb": round(row[0] / (1024 ** 3), 2),
         })
 
     return results
 
 
-def _query_top_large(limit: int = 20) -> list[dict]:
-    """查询最大的 N 个文件。"""
+def _query_top_large(limit: int = 20, drives: list[str] | None = None) -> dict:
+    """查询每个盘最大的 N 个文件，返回 {drive: [files]}。"""
     from backend.core.db import get_connection
     conn = get_connection()
 
-    rows = conn.execute(
-        "SELECT id, name, path, size FROM file_metadata WHERE is_active=1 ORDER BY size DESC LIMIT ?",
-        (limit,),
-    ).fetchall()
+    if drives is None:
+        drives = []
+        for part in __import__('psutil').disk_partitions():
+            if "fixed" in part.opts or "removable" in part.opts:
+                drives.append(part.mountpoint.rstrip("\\"))
 
-    return [{"id": r["id"], "name": r["name"], "path": r["path"], "size": r["size"]} for r in rows]
+    result = {}
+    for drive in drives:
+        rows = conn.execute(
+            """SELECT id, name, path, size FROM file_metadata
+               WHERE is_active = 1 AND path LIKE ?
+               ORDER BY size DESC LIMIT ?""",
+            (drive + "%", limit),
+        ).fetchall()
+        result[drive] = [
+            {"id": r["id"], "name": r["name"], "path": r["path"], "size": r["size"]}
+            for r in rows
+        ]
+
+    return result
 
 
 def _query_unmigrated() -> dict:

@@ -226,10 +226,25 @@ body {
   color: var(--accent-yellow);
 }
 
+/* ---- Per-Drive Section ---- */
+
+.drive-section {
+  margin-bottom: 16px;
+}
+
+.drive-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent-yellow);
+  margin-bottom: 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 /* ---- File List (Top Large) ---- */
 
 .file-list {
-  max-height: 420px;
+  max-height: 220px;
   overflow-y: auto;
 }
 
