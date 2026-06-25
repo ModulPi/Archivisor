@@ -1,0 +1,4 @@
+pywin32>=306
+send2trash>=1.8
+psutil>=5.9
+pydantic>=2.0

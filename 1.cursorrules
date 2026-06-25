@@ -1,0 +1,32 @@
+# Archivisor 项目 AI 行为约束
+
+## 1. 技术栈与环境
+- Python 3.11+（Windows 专用）
+- 虚拟环境：`.venv/`
+- 依赖管理：`requirements.txt`（不要用 poetry 或 pipenv）
+- Electron + React（TypeScript）用于 UI
+
+## 2. 绝对禁止（代码红线）
+- **严禁** 在代码中出现 `os.remove`、`shutil.rmtree`、`os.unlink`（软删除 7 天后用户确认除外）
+- **严禁** 使用 `multiprocessing.fork()`（Windows 不支持，必须用 `get_context("spawn")`）
+- **严禁** 导入 `langchain` 或 `langgraph`（MVP 阶段不用）
+- **严禁** 在 MVP 代码中调用任何 AI API（OpenAI/DeepSeek）
+
+## 3. 通信协议
+- 前后端通信：**stdio JSON-RPC**（一行一个 JSON，以 `\n` 结尾）
+- **禁止** 使用 HTTP / FastAPI / Socket（避免端口冲突）
+
+## 4. 数据库
+- SQLite + FTS5（内置扩展）
+- 开启 WAL 模式
+- `file_metadata` 表 **必须** 用自增 `id` 做主键，`path` 仅做 UNIQUE（便于迁移时更新路径）
+
+## 5. 导入规范
+- 标准库优先：`pathlib` > `os.path`，`shutil` 仅用于复制
+- Windows API：优先用 `pywin32`，其次 `ctypes`
+- 文件监控：MVP 阶段 **不引入** `watchdog`（留给 Agent 迭代）
+
+## 6. 代码风格
+- 所有 I/O 密集型操作必须在 `worker/io_worker.py` 子进程中执行
+- 主进程（`main.py`）必须保持 < 100ms 响应时间
+- 所有外部操作必须有 try-except，异常时写入 `logs/crash_时间.json`
