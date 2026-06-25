@@ -3,21 +3,29 @@ Junction 管理器 —— 封装 Windows mklink /J 命令。
 Junction 是一种目录符号链接，对应用程序透明。
 """
 import os
+import ctypes
 import subprocess
 from pathlib import Path
+
+# Windows 文件属性常量
+FILE_ATTRIBUTE_REPARSE_POINT = 0x400
+INVALID_FILE_ATTRIBUTES = 0xFFFFFFFF
 
 
 def is_junction(path: str | Path) -> bool:
     """
     检查路径是否为 Junction（目录联接）。
-    通过 os.path.islink（Python 3.12+ 在 Windows 上支持）+ 目录判断。
+    通过 GetFileAttributesW 检测 reparse point 属性。
     """
     p = Path(path)
     if not p.exists():
         return False
-    # Junction 在 Windows 上被识别为 reparse point + directory
+
     try:
-        is_reparse = bool(p.stat().st_file_attributes & 0x400)  # FILE_ATTRIBUTE_REPARSE_POINT
+        attrs = ctypes.windll.kernel32.GetFileAttributesW(str(p))
+        if attrs == INVALID_FILE_ATTRIBUTES:
+            return False
+        is_reparse = bool(attrs & FILE_ATTRIBUTE_REPARSE_POINT)
         return is_reparse and p.is_dir()
     except OSError:
         return False

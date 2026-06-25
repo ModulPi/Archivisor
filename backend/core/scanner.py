@@ -22,28 +22,37 @@ SKIP_DIR_NAMES: set[str] = {
     ".git",
 }
 
-SKIP_PREFIXES: list[str] = [
+# 已知的临时目录根路径（仅用于顶层跳过，不递归应用到子目录）
+_SYSTEM_TEMP_ROOTS: list[str] = [
     os.environ.get("TEMP", ""),
     os.environ.get("TMP", ""),
-    *FORBIDDEN_PREFIXES,
 ]
 
 
-def _should_skip_dir(dir_path: str) -> bool:
-    """判断目录是否应该跳过（不递归进入）。"""
+def _is_temp_or_forbidden_top_level(dir_path: str, scan_root: str) -> bool:
+    """检查是否应跳过对某根目录的扫描（仅顶层判断）。"""
+    d = str(dir_path).rstrip("\\")
+    for prefix in _SYSTEM_TEMP_ROOTS:
+        if prefix and d == prefix.rstrip("\\"):
+            return True
+    return False
+
+
+def _should_skip_dir(dir_path: str, scan_root: str) -> bool:
+    """
+    判断扫描过程中是否应跳过某个子目录（不递归进入）。
+    注意：不检查 SKIP_PREFIXES（如 Temp）—— 因为用户显式指定的
+    扫描根目录可能位于 Temp 下（如迁移测试），其子目录不应被跳过。
+    """
     name = Path(dir_path).name
     if name in SKIP_DIR_NAMES:
         return True
-    # 跳过隐藏目录（以 . 开头，但保留当前目录概念）
+    # 跳过隐藏目录（以 . 开头）
     if name.startswith(".") and name not in (".", ".."):
         return True
-    # 安全检查
+    # 安全校验（禁止系统目录）
     if not is_safe_path(dir_path):
         return True
-    # Temp 目录
-    for prefix in SKIP_PREFIXES:
-        if prefix and str(dir_path).startswith(prefix):
-            return True
     return False
 
 
@@ -144,7 +153,7 @@ def scan_directory(
                     continue
 
                 if is_dir:
-                    if not _should_skip_dir(entry.path):
+                    if not _should_skip_dir(entry.path, str(root)):
                         dir_stack.append(entry.path)
                     continue
 

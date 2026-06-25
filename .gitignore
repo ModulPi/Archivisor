@@ -266,6 +266,9 @@ Thumbs.db
 .DS_Store
 Desktop.ini
 
+# 项目日志（崩溃报告、审计日志等）
+logs/
+
 # IDE（PyCharm / VS Code）
 .idea/
 .vscode/
