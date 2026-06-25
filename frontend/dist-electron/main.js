@@ -34,6 +34,32 @@ function startBackend() {
         stdio: ['pipe', 'pipe', 'pipe'],
         env: { ...process.env, PYTHONUNBUFFERED: '1' },
     });
+    // spawn 错误处理
+    backendProcess.on('error', (err) => {
+        console.error(`[Archivisor] Failed to start backend:`, err.message);
+        if (mainWindow) {
+            mainWindow.webContents.send('backend:status', {
+                connected: false,
+                reason: `Cannot launch Python: ${err.message}`,
+            });
+        }
+    });
+    // stderr 转发
+    backendProcess.stderr.on('data', (chunk) => {
+        const text = chunk.toString('utf-8').trim();
+        if (text) {
+            console.error(`[Python stderr] ${text}`);
+            // 如果是 ImportError 等关键错误，通知渲染层
+            if (text.includes('Error') || text.includes('Traceback')) {
+                if (mainWindow) {
+                    mainWindow.webContents.send('backend:status', {
+                        connected: false,
+                        reason: `Python error: ${text.slice(0, 120)}`,
+                    });
+                }
+            }
+        }
+    });
     // stdout 缓冲区：可能包含多个 JSON 对象或半截数据
     let stdoutBuffer = '';
     backendProcess.stdout.on('data', (chunk) => {

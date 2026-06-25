@@ -332,6 +332,23 @@ body {
   font-family: 'Consolas', 'Courier New', monospace;
 }
 
+/* ---- Error Banner ---- */
+
+.app-error-banner {
+  background: rgba(233, 68, 96, 0.12);
+  border: 1px solid rgba(233, 68, 96, 0.3);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  color: var(--accent);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.app-error-banner small {
+  color: var(--text-secondary);
+}
+
 /* ---- States ---- */
 
 .dashboard-offline,

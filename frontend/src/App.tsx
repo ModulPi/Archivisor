@@ -4,16 +4,20 @@ import { ping } from './services/backend'
 
 const App: React.FC = () => {
   const [backendOnline, setBackendOnline] = useState<boolean>(false)
+  const [backendError, setBackendError] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(true)
 
   useEffect(() => {
     let cancelled = false
 
-    // 监听 backend 心跳状态
+    // 监听 backend 状态（心跳 + 错误诊断）
     if (window.archivisor) {
       window.archivisor.onBackendStatus((status) => {
         if (!cancelled) {
           setBackendOnline(status.connected)
+          if (status.reason) {
+            setBackendError(status.reason)
+          }
         }
       })
     }
@@ -58,6 +62,15 @@ const App: React.FC = () => {
           </span>
         </div>
       </header>
+
+      {backendError && (
+        <div className="app-error-banner">
+          <strong>诊断:</strong> {backendError}
+          <br />
+          <small>请确认已安装 Python 3.11+ 并添加到 PATH，然后重启应用。</small>
+        </div>
+      )}
+
       <main className="app-main">
         <Dashboard backendOnline={backendOnline} />
       </main>
