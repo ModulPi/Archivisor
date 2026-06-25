@@ -129,3 +129,8 @@ export function getMigrationStatus(planId: number): Promise<{ plan: any }> {
 export function rollbackMigration(planId: number): Promise<any> {
   return rpc('rollback', { plan_id: planId })
 }
+
+/** 查询迁移历史 */
+export function queryMigrationHistory(): Promise<{ history: any[] }> {
+  return rpc('query', { type: 'migration_history' })
+}

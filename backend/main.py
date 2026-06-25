@@ -173,6 +173,9 @@ def handle_query(params: dict) -> dict:
     elif qtype == "unmigrated":
         return {"unmigrated": _query_unmigrated()}
 
+    elif qtype == "migration_history":
+        return {"history": _query_migration_history()}
+
     elif qtype == "dashboard":
         return {
             "disks": _query_disk_usage(),
@@ -217,6 +220,16 @@ def _query_disk_usage() -> list[dict]:
         })
 
     return results
+
+
+def _query_migration_history() -> list[dict]:
+    """查询迁移历史列表。"""
+    from backend.core.db import get_connection
+    conn = get_connection()
+    rows = conn.execute(
+        "SELECT * FROM migration_manifest ORDER BY created_at DESC LIMIT 50"
+    ).fetchall()
+    return [dict(r) for r in rows]
 
 
 def _query_top_large(limit: int = 20, drives: list[str] | None = None) -> dict:
