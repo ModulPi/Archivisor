@@ -468,6 +468,17 @@ body {
   font-size: 14px;
 }
 
+.msg-empty-action {
+  padding: 40px 0;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
 /* ---- Result Card ---- */
 
 .result-card {

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { queryDuplicates, queryTempFiles } from '../services/backend'
+import { NavigateTarget, PageKey } from '../App'
 
-interface Props { backendOnline: boolean }
+interface Props { backendOnline: boolean; navigateTo: (t: PageKey | NavigateTarget) => void }
 
 const formatSize = (bytes: number): string => {
   if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(2)} GB`
@@ -9,7 +10,7 @@ const formatSize = (bytes: number): string => {
   return `${(bytes / 1024).toFixed(0)} KB`
 }
 
-const CleanupPage: React.FC<Props> = ({ backendOnline }) => {
+const CleanupPage: React.FC<Props> = ({ backendOnline, navigateTo }) => {
   const [duplicates, setDuplicates] = useState<any[]>([])
   const [tempFiles, setTempFiles] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -50,7 +51,10 @@ const CleanupPage: React.FC<Props> = ({ backendOnline }) => {
 
       {!loading && tab === 'duplicates' && (
         duplicates.length === 0 ? (
-          <div className="msg-empty">未发现重复文件。请先扫描目录建立索引。</div>
+          <div className="msg-empty-action">
+            <p>未发现重复文件，请先扫描目录建立索引。</p>
+            <button className="btn-primary" onClick={() => navigateTo('scan')}>去扫描</button>
+          </div>
         ) : (
           <div className="dup-list">
             {duplicates.map((group, gi) => (
@@ -73,7 +77,10 @@ const CleanupPage: React.FC<Props> = ({ backendOnline }) => {
 
       {!loading && tab === 'temp' && (
         tempFiles.length === 0 ? (
-          <div className="msg-empty">未发现临时文件。请先扫描目录建立索引。</div>
+          <div className="msg-empty-action">
+            <p>未发现临时文件，请先扫描目录建立索引。</p>
+            <button className="btn-primary" onClick={() => navigateTo('scan')}>去扫描</button>
+          </div>
         ) : (
           <div className="file-list">
             {tempFiles.map((f: any) => (

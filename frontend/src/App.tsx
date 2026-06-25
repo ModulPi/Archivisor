@@ -106,7 +106,7 @@ const App: React.FC = () => {
       case 'scan':      return <ScanPage backendOnline={backendOnline} navigateTo={navigateTo} />
       case 'migrate':   return <MigratePage backendOnline={backendOnline} initialParams={pageParams} />
       case 'rollback':  return <RollbackPage backendOnline={backendOnline} />
-      case 'cleanup':   return <CleanupPage backendOnline={backendOnline} />
+      case 'cleanup':   return <CleanupPage backendOnline={backendOnline} navigateTo={navigateTo} />
     }
   }
 
