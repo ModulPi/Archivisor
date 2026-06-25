@@ -10,7 +10,6 @@ const App: React.FC = () => {
   useEffect(() => {
     let cancelled = false
 
-    // 监听 backend 状态（心跳 + 错误诊断）
     if (window.archivisor) {
       window.archivisor.onBackendStatus((status) => {
         if (!cancelled) {
@@ -22,7 +21,6 @@ const App: React.FC = () => {
       })
     }
 
-    // 主动 ping 一次确认连通
     ping()
       .then((res) => {
         if (!cancelled) {
@@ -67,7 +65,7 @@ const App: React.FC = () => {
         <div className="app-error-banner">
           <strong>诊断:</strong> {backendError}
           <br />
-          <small>请确认已安装 Python 3.11+ 并添加到 PATH，然后重启应用。</small>
+          <small>请确认 Python 后端已启动（终端运行 python backend/main.py），然后刷新页面。</small>
         </div>
       )}
 

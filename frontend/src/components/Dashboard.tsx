@@ -21,7 +21,7 @@ const Dashboard: React.FC<Props> = ({ backendOnline }) => {
       const result = await queryDashboard()
       setData(result)
     } catch (err: any) {
-      setError(err.message || 'Failed to load dashboard')
+      setError(err.message || '加载失败')
     } finally {
       setRefreshing(false)
     }
@@ -36,7 +36,7 @@ const Dashboard: React.FC<Props> = ({ backendOnline }) => {
   if (!backendOnline) {
     return (
       <div className="dashboard-offline">
-        <p>引擎未连接，无法加载数据。请确认 Python backend 已启动。</p>
+        <p>引擎未连接，无法加载数据。请确认 Python 后端已启动。</p>
       </div>
     )
   }
@@ -70,7 +70,7 @@ const Dashboard: React.FC<Props> = ({ backendOnline }) => {
           disabled={refreshing}
           className="btn-refresh"
         >
-          {refreshing ? '刷新中...' : '刷新'}
+          {refreshing ? '刷新中...' : '刷新数据'}
         </button>
       </div>
 

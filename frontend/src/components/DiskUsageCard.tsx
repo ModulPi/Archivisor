@@ -10,11 +10,6 @@ const formatGB = (gb: number): string => {
   return `${gb.toFixed(1)} GB`
 }
 
-const usagePercent = (used: number, total: number): number => {
-  if (total === 0) return 0
-  return Math.round((used / total) * 100)
-}
-
 const DiskUsageCard: React.FC<Props> = ({ disks }) => {
   if (!disks || disks.length === 0) {
     return (
@@ -30,7 +25,7 @@ const DiskUsageCard: React.FC<Props> = ({ disks }) => {
       <h3 className="card-title">磁盘占用</h3>
       <div className="disk-list">
         {disks.map((disk) => {
-          const pct = usagePercent(disk.used_gb, disk.total_gb)
+          const pct = disk.total_gb > 0 ? Math.round((disk.used_gb / disk.total_gb) * 100) : 0
           return (
             <div key={disk.mountpoint} className="disk-item">
               <div className="disk-info">
@@ -44,12 +39,8 @@ const DiskUsageCard: React.FC<Props> = ({ disks }) => {
                 />
               </div>
               <div className="disk-stats">
-                <span>
-                  已用 {formatGB(disk.used_gb)} / {formatGB(disk.total_gb)}
-                </span>
-                <span className="disk-user-data">
-                  用户数据 {formatGB(disk.user_data_gb)}
-                </span>
+                <span>已用 {formatGB(disk.used_gb)} / 共 {formatGB(disk.total_gb)}</span>
+                <span className="disk-user-data">用户数据 {formatGB(disk.user_data_gb)}</span>
               </div>
             </div>
           )

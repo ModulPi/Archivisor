@@ -16,8 +16,8 @@ const TopLargeFilesCard: React.FC<Props> = ({ files }) => {
   if (!files || files.length === 0) {
     return (
       <div className="card">
-        <h3 className="card-title">大文件 Top 20</h3>
-        <p className="card-empty">暂无已索引的文件。请先执行扫描。</p>
+        <h3 className="card-title">大文件排行</h3>
+        <p className="card-empty">暂无数据，请先扫描目录。</p>
       </div>
     )
   }

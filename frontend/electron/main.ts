@@ -35,8 +35,12 @@ function startBackend(): void {
   backendProcess = spawn(pythonCmd, args, {
     cwd,
     stdio: ['pipe', 'pipe', 'pipe'],
-    env: { ...process.env, PYTHONUNBUFFERED: '1' },
+    env: { ...process.env, PYTHONUNBUFFERED: '1', PYTHONIOENCODING: 'utf-8' },
   })
+
+  // Windows 强制 UTF-8 编码，防止中文乱码
+  if (backendProcess.stdout) backendProcess.stdout.setEncoding('utf-8')
+  if (backendProcess.stderr) backendProcess.stderr.setEncoding('utf-8')
 
   // spawn 错误处理
   backendProcess.on('error', (err) => {
@@ -111,7 +115,7 @@ function startBackend(): void {
 /** 处理来自 Python 的消息（响应或心跳） */
 function handleBackendMessage(msg: any): void {
   if (msg.type === 'heartbeat') {
-    // 心跳，仅在通信层面记录时间，不发送到渲染进程
+    lastHeartbeat = Date.now()
     return
   }
 
