@@ -2,7 +2,7 @@ import React from 'react'
 import { DiskUsage } from '../services/backend'
 
 interface Props {
-  disks: DiskUsage[]
+  disk: DiskUsage
 }
 
 const formatGB = (gb: number): string => {
@@ -10,41 +10,32 @@ const formatGB = (gb: number): string => {
   return `${gb.toFixed(1)} GB`
 }
 
-const DiskUsageCard: React.FC<Props> = ({ disks }) => {
-  if (!disks || disks.length === 0) {
-    return (
-      <div className="card">
-        <h3 className="card-title">磁盘占用</h3>
-        <p className="card-empty">暂无磁盘数据</p>
-      </div>
-    )
-  }
+const DiskUsageCard: React.FC<Props> = ({ disk }) => {
+  const pct = disk.total_gb > 0 ? Math.round((disk.used_gb / disk.total_gb) * 100) : 0
 
   return (
-    <div className="card">
-      <h3 className="card-title">磁盘占用</h3>
-      <div className="disk-list">
-        {disks.map((disk) => {
-          const pct = disk.total_gb > 0 ? Math.round((disk.used_gb / disk.total_gb) * 100) : 0
-          return (
-            <div key={disk.mountpoint} className="disk-item">
-              <div className="disk-info">
-                <span className="disk-drive">{disk.drive}</span>
-                <span className="disk-path">{disk.mountpoint}</span>
-              </div>
-              <div className="disk-bar-bg">
-                <div
-                  className="disk-bar-fill"
-                  style={{ width: `${Math.min(pct, 100)}%` }}
-                />
-              </div>
-              <div className="disk-stats">
-                <span>已用 {formatGB(disk.used_gb)} / 共 {formatGB(disk.total_gb)}</span>
-                <span className="disk-user-data">已索引 {formatGB(disk.indexed_gb)}</span>
-              </div>
-            </div>
-          )
-        })}
+    <div className="card disk-card">
+      <h3 className="card-title">{disk.drive} {disk.mountpoint}</h3>
+      <div className="disk-bar-bg" style={{ marginBottom: 10 }}>
+        <div className="disk-bar-fill" style={{ width: `${Math.min(pct, 100)}%` }} />
+      </div>
+      <div className="disk-detail-grid">
+        <div className="disk-detail-item">
+          <span className="disk-detail-value">{formatGB(disk.total_gb)}</span>
+          <span className="disk-detail-label">总容量</span>
+        </div>
+        <div className="disk-detail-item">
+          <span className="disk-detail-value" style={{ color: 'var(--accent)' }}>{formatGB(disk.used_gb)}</span>
+          <span className="disk-detail-label">已使用</span>
+        </div>
+        <div className="disk-detail-item">
+          <span className="disk-detail-value" style={{ color: 'var(--accent-green)' }}>{formatGB(disk.free_gb)}</span>
+          <span className="disk-detail-label">可用</span>
+        </div>
+        <div className="disk-detail-item">
+          <span className="disk-detail-value" style={{ color: 'var(--accent-yellow)' }}>{formatGB(disk.indexed_gb)}</span>
+          <span className="disk-detail-label">已索引</span>
+        </div>
       </div>
     </div>
   )

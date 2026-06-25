@@ -463,8 +463,6 @@ body {
   overflow: hidden;
 }
 
-.card:first-child { grid-column: 1 / -1; }
-
 .card-title {
   font-size: 15px;
   font-weight: 600;
@@ -475,18 +473,12 @@ body {
 
 .card-empty { color: var(--text-secondary); font-size: 13px; padding: 10px 0; }
 
-/* Disk */
+/* Disk Card */
 
-.disk-list { display: flex; flex-direction: column; gap: 14px; }
-
-.disk-item { display: flex; flex-direction: column; gap: 4px; }
-
-.disk-info { display: flex; justify-content: space-between; }
-.disk-drive { font-weight: 600; }
-.disk-path { color: var(--text-secondary); font-size: 12px; }
+.disk-card {}
 
 .disk-bar-bg {
-  height: 7px;
+  height: 8px;
   background: var(--bg-primary);
   border-radius: 4px;
   overflow: hidden;
@@ -499,14 +491,30 @@ body {
   transition: width 0.5s;
 }
 
-.disk-stats {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  color: var(--text-secondary);
+.disk-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
 }
 
-.disk-user-data { color: var(--accent-yellow); }
+.disk-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.disk-detail-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.disk-detail-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
 
 /* Per-drive */
 
@@ -603,4 +611,24 @@ body {
   color: var(--accent);
   cursor: pointer;
   font-size: 14px;
+}
+
+/* ---- 滚动条美化 ---- */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3a3a5a;
 }

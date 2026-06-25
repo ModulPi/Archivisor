@@ -45,7 +45,9 @@ const Dashboard: React.FC<Props> = ({ backendOnline, navigateTo }) => {
         </button>
       </div>
       <div className="dashboard-cards">
-        <DiskUsageCard disks={data.disks} />
+        {data.disks.map((disk) => (
+          <DiskUsageCard key={disk.mountpoint} disk={disk} />
+        ))}
         <TopLargeFilesCard files={data.top_large_files} navigateTo={navigateTo} />
         <UnmigratedCard data={data.unmigrated} />
       </div>
