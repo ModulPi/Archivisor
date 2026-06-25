@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import Sidebar from './components/Sidebar'
-import StatusBar from './components/StatusBar'
 import Dashboard from './components/Dashboard'
 import ScanPage from './components/ScanPage'
 import MigratePage from './components/MigratePage'
 import RollbackPage from './components/RollbackPage'
-import { ping, queryDiskUsage } from './services/backend'
+import { ping } from './services/backend'
 
 export type PageKey = 'dashboard' | 'scan' | 'migrate' | 'rollback'
 
@@ -20,7 +19,6 @@ const App: React.FC = () => {
   const [backendOnline, setBackendOnline] = useState(false)
   const [backendError, setBackendError] = useState('')
   const [loading, setLoading] = useState(true)
-  const [statusInfo, setStatusInfo] = useState<{ drives: string[] }>({ drives: [] })
 
   const navigateTo = (target: PageKey | NavigateTarget) => {
     if (typeof target === 'string') {
@@ -44,9 +42,6 @@ const App: React.FC = () => {
     }
     ping().then((res) => { if (!cancelled) { setBackendOnline(res.pong === true); setLoading(false) } })
          .catch(() => { if (!cancelled) { setBackendOnline(false); setLoading(false) } })
-    queryDiskUsage().then((r) => {
-      if (!cancelled) setStatusInfo({ drives: r.disks.map((d) => `${d.drive} ${d.free_gb.toFixed(0)}GB 可用`) })
-    }).catch(() => {})
     return () => { cancelled = true }
   }, [])
 
@@ -87,7 +82,6 @@ const App: React.FC = () => {
         )}
         <main className="app-main">{renderPage()}</main>
       </div>
-      <StatusBar info={statusInfo} backendOnline={backendOnline} />
     </div>
   )
 }
