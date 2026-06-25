@@ -1,0 +1,362 @@
+/* ================================================================
+   Archivisor — 看板样式
+   ================================================================ */
+
+:root {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-card: #0f3460;
+  --accent: #e94560;
+  --accent-green: #4ade80;
+  --accent-yellow: #fbbf24;
+  --text-primary: #eee;
+  --text-secondary: #a0a0b0;
+  --border: #2a2a4a;
+  --radius: 8px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  min-height: 100vh;
+}
+
+/* ---- Loading ---- */
+
+.app-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ---- App Layout ---- */
+
+.app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px 48px;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 28px;
+}
+
+.app-title {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.app-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.status-dot.online {
+  background: var(--accent-green);
+  box-shadow: 0 0 6px var(--accent-green);
+}
+
+.status-dot.offline {
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.status-text {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ---- Dashboard ---- */
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.dashboard-header h2 {
+  font-size: 20px;
+}
+
+.btn-refresh {
+  padding: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: var(--accent);
+}
+
+.btn-refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
+}
+
+/* ---- Card ---- */
+
+.card {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  overflow: hidden;
+}
+
+.card:first-child {
+  /* 磁盘占用占满第一行 */
+  grid-column: 1 / -1;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.card-empty {
+  color: var(--text-secondary);
+  font-size: 14px;
+  padding: 12px 0;
+}
+
+/* ---- Disk Usage ---- */
+
+.disk-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.disk-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.disk-info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.disk-drive {
+  font-weight: 600;
+}
+
+.disk-path {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.disk-bar-bg {
+  height: 8px;
+  background: var(--bg-primary);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.disk-bar-fill {
+  height: 100%;
+  background: var(--accent-green);
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.disk-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.disk-user-data {
+  color: var(--accent-yellow);
+}
+
+/* ---- File List (Top Large) ---- */
+
+.file-list {
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+.file-list-header {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.file-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  font-size: 13px;
+  cursor: default;
+}
+
+.file-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.col-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding-right: 12px;
+}
+
+.col-size {
+  flex-shrink: 0;
+  font-family: 'Consolas', 'Courier New', monospace;
+  color: var(--accent-yellow);
+  min-width: 80px;
+  text-align: right;
+}
+
+/* ---- Unmigrated ---- */
+
+.unmigrated-summary {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.summary-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.summary-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent-green);
+}
+
+.ext-breakdown h4 {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ext-row {
+  display: flex;
+  gap: 12px;
+  padding: 4px 0;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.ext-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.ext-count {
+  color: var(--text-secondary);
+  min-width: 60px;
+  text-align: right;
+}
+
+.ext-size {
+  color: var(--accent-yellow);
+  min-width: 70px;
+  text-align: right;
+  font-family: 'Consolas', 'Courier New', monospace;
+}
+
+/* ---- States ---- */
+
+.dashboard-offline,
+.dashboard-error,
+.dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 0;
+  gap: 16px;
+  color: var(--text-secondary);
+}
+
+.btn-retry {
+  padding: 8px 20px;
+  border: 1px solid var(--accent);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.btn-retry:hover {
+  background: var(--accent);
+  color: white;
+}
