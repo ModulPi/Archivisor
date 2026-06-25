@@ -7,6 +7,7 @@ import json
 import time
 import threading
 import traceback
+import multiprocessing
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -358,4 +359,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     main()
