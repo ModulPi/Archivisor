@@ -85,11 +85,15 @@ def handle_scan(params: dict) -> dict:
     if not root_path:
         return {"error": "Missing required param: root_path"}
 
-    # 尝试解析为已知目录名
+    # 单字母 → 补全为盘符（如 "c" → "C:\"）
+    if len(root_path) == 1 and root_path.isalpha():
+        root_path = root_path.upper() + ":\\"
+
+    # 尝试解析为已知目录名（Desktop/Downloads 等）
     try:
         root_path = str(get_known_folder(root_path))
     except (ValueError, OSError):
-        pass  # 不是已知目录名，当做原始路径使用
+        pass
 
     return scan_and_summarize(root_path)
 

@@ -79,10 +79,10 @@ def _get_folder_ctypes(folder_name: str) -> str | None:
     guid.Data1 = g.time_low
     guid.Data2 = g.time_mid
     guid.Data3 = g.time_hi_version
-    guid.Data4 = (ctypes.c_byte * 8)(*list(g.clock_seq_hi_variant.to_bytes(1, 'big') + g.clock_seq_low.to_bytes(1, 'big') + g.node.to_bytes(6, 'big')))
+    guid.Data4 = (wintypes.BYTE * 8)(*list(g.clock_seq_hi_variant.to_bytes(1, 'big') + g.clock_seq_low.to_bytes(1, 'big') + g.node.to_bytes(6, 'big')))
 
     # SHGetKnownFolderPath
-    psz_path = wintypes.PWSTR()
+    psz_path = wintypes.LPWSTR()
     KF_FLAG_DEFAULT = 0x00000000
 
     ret = shell32.SHGetKnownFolderPath(
