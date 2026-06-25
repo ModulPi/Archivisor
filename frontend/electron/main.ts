@@ -211,8 +211,8 @@ function createWindow(): void {
   })
 
   // 开发模式加载 Vite dev server，生产模式加载构建产物
-  if (process.env.VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(process.env.VITE_DEV_SERVER_URL)
+  if (!app.isPackaged) {
+    mainWindow.loadURL('http://localhost:5173')
   } else {
     mainWindow.loadFile(path.join(__dirname, '..', 'dist', 'index.html'))
   }
