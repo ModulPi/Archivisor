@@ -114,7 +114,12 @@ const MigratePage: React.FC<Props> = ({ backendOnline, initialParams }) => {
       <h2 className="page-title">文件迁移</h2>
       <div className="result-card">
         <h3>迁移完成</h3>
-        <p>文件已复制到目标盘，原位置已创建透明联接。应用程序不受影响。</p>
+        <p>文件已复制到目标盘，原位置已创建透明联接。</p>
+        {plan && (
+          <p style={{marginTop:8, color:'var(--accent-green)', fontSize:18, fontWeight:700}}>
+            释放空间: {formatSize(plan.total_size)}
+          </p>
+        )}
         <button className="btn-primary" style={{marginTop:16}} onClick={() => { setStep('config'); setPlan(null); setSource('') }}>
           继续迁移
         </button>

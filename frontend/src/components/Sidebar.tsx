@@ -12,6 +12,7 @@ const ITEMS: { key: PageKey; label: string; icon: string }[] = [
   { key: 'scan',      label: '扫描', icon: '🔍' },
   { key: 'migrate',   label: '迁移', icon: '📦' },
   { key: 'rollback',  label: '回滚', icon: '↩️ ' },
+  { key: 'cleanup',   label: '清理', icon: '🧹' },
 ]
 
 const Sidebar: React.FC<Props> = ({ current, onNavigate, backendOnline }) => {

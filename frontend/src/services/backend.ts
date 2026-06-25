@@ -134,3 +134,18 @@ export function rollbackMigration(planId: number): Promise<any> {
 export function queryMigrationHistory(): Promise<{ history: any[] }> {
   return rpc('query', { type: 'migration_history' })
 }
+
+/** 搜索文件 (FTS5) */
+export function searchFiles(keyword: string): Promise<{ results: Array<{ id: number; name: string; path: string; size: number }> }> {
+  return rpc('query', { type: 'search', keyword })
+}
+
+/** 重复文件检测 */
+export function queryDuplicates(drive?: string): Promise<{ duplicates: Array<{ size: number; count: number; files: Array<{ id: number; name: string; path: string; size: number }> }> }> {
+  return rpc('query', { type: 'duplicates', drive: drive || '' })
+}
+
+/** 临时文件 */
+export function queryTempFiles(drive?: string): Promise<{ temp_files: Array<{ id: number; name: string; path: string; size: number }> }> {
+  return rpc('query', { type: 'temp_files', drive: drive || '' })
+}

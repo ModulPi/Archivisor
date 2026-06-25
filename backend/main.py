@@ -204,6 +204,15 @@ def handle_query(params: dict) -> dict:
     elif qtype == "known_folders":
         return {"folders": _query_known_folders()}
 
+    elif qtype == "search":
+        return {"results": _query_search(params.get("keyword", ""), limit)}
+
+    elif qtype == "duplicates":
+        return {"duplicates": _query_duplicates(params.get("drive", ""))}
+
+    elif qtype == "temp_files":
+        return {"temp_files": _query_temp_files(params.get("drive", ""))}
+
     elif qtype == "dashboard":
         return {
             "disks": _query_disk_usage(),
@@ -305,6 +314,95 @@ def _query_top_large(limit: int = 20, drives: list[str] | None = None) -> dict:
         ]
 
     return result
+
+
+def _query_search(keyword: str, limit: int = 50) -> list[dict]:
+    """FTS5 搜索文件名。"""
+    if not keyword:
+        return []
+    from backend.core.db import get_connection
+    conn = get_connection()
+    rows = conn.execute(
+        """SELECT fm.id, fm.name, fm.path, fm.size
+           FROM file_fts fts
+           JOIN file_metadata fm ON fts.rowid = fm.id
+           WHERE file_fts MATCH ? AND fm.is_active = 1
+           ORDER BY rank LIMIT ?""",
+        (keyword, limit),
+    ).fetchall()
+    return [{"id": r["id"], "name": r["name"], "path": r["path"], "size": r["size"]} for r in rows]
+
+
+def _query_duplicates(drive: str = "") -> list[dict]:
+    """查找重复文件（同 size + MD5 相同）。只查已索引的文件。"""
+    from backend.core.db import get_connection
+    import hashlib
+    conn = get_connection()
+    drive_filter = f"AND path LIKE '{drive}%'" if drive else ""
+    # 找同 size 且 > 2 条的文件
+    rows = conn.execute(f"""
+        SELECT size, COUNT(*) as cnt
+        FROM file_metadata
+        WHERE is_active = 1 AND size > 0 {drive_filter}
+        GROUP BY size HAVING cnt >= 2
+        ORDER BY size DESC
+        LIMIT 200
+    """).fetchall()
+
+    duplicates = []
+    for row in rows:
+        size = row["size"]
+        files = conn.execute(
+            "SELECT id, name, path, size FROM file_metadata WHERE size = ? AND is_active = 1",
+            (size,),
+        ).fetchall()
+        if len(files) < 2:
+            continue
+        # 按 MD5 分组（只对 > 1MB 的文件做 MD5，小文件直接按 size 认为重复）
+        groups: dict[str, list[dict]] = {}
+        for f in files:
+            key = f["path"]  # 小文件用 path 作为临时 key
+            if size > 1024 * 1024:
+                try:
+                    md5 = hashlib.md5()
+                    with open(f["path"], "rb") as fh:
+                        while True:
+                            chunk = fh.read(8 * 1024 * 1024)
+                            if not chunk: break
+                            md5.update(chunk)
+                    key = md5.hexdigest()
+                except OSError:
+                    continue
+            groups.setdefault(key, []).append(dict(f))
+
+        for files_list in groups.values():
+            if len(files_list) >= 2:
+                duplicates.append({
+                    "size": size,
+                    "count": len(files_list),
+                    "files": files_list,
+                })
+
+    # 按浪费空间排序（size * (count-1)）
+    duplicates.sort(key=lambda d: d["size"] * (d["count"] - 1), reverse=True)
+    return duplicates[:20]
+
+
+def _query_temp_files(drive: str = "") -> list[dict]:
+    """查找临时文件（*.tmp / ~$* / %TEMP% 目录）。"""
+    from backend.core.db import get_connection
+    conn = get_connection()
+    temp_dir = __import__('os').environ.get("TEMP", "")
+    conditions = ["is_active = 1"]
+    conditions.append("(extension = 'tmp' OR name LIKE '~$%')")
+    if temp_dir and (not drive or temp_dir.startswith(drive)):
+        conditions.append(f"path LIKE '{temp_dir}%'")
+    where = " AND ".join(f"({c})" for c in conditions)
+    rows = conn.execute(f"""
+        SELECT id, name, path, size FROM file_metadata
+        WHERE {where} ORDER BY size DESC LIMIT 100
+    """).fetchall()
+    return [{"id": r["id"], "name": r["name"], "path": r["path"], "size": r["size"]} for r in rows]
 
 
 def _query_unmigrated() -> dict:
