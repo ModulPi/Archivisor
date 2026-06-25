@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { DashboardData, queryDashboard } from '../services/backend'
 import { NavigateTarget, PageKey } from '../App'
 import DiskUsageCard from './DiskUsageCard'
-import TopLargeFilesCard from './TopLargeFilesCard'
 import UnmigratedCard from './UnmigratedCard'
 
 interface Props {
@@ -46,9 +45,13 @@ const Dashboard: React.FC<Props> = ({ backendOnline, navigateTo }) => {
       </div>
       <div className="dashboard-cards">
         {data.disks.map((disk) => (
-          <DiskUsageCard key={disk.mountpoint} disk={disk} />
+          <DiskUsageCard
+            key={disk.mountpoint}
+            disk={disk}
+            largeFiles={data.top_large_files[disk.mountpoint] || []}
+            navigateTo={navigateTo}
+          />
         ))}
-        <TopLargeFilesCard files={data.top_large_files} navigateTo={navigateTo} />
         <UnmigratedCard data={data.unmigrated} />
       </div>
     </div>
