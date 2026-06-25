@@ -76,13 +76,20 @@ def _ensure_worker():
 def handle_scan(params: dict) -> dict:
     """
     扫描指定目录。
-    params: {"root_path": "C:\\Users\\A\\Desktop"}
+    params: {"root_path": "C:\\Users\\A\\Desktop"} 或 {"root_path": "Desktop"}
     """
     from backend.core.scanner import scan_and_summarize
+    from backend.utils.known_folders import get_known_folder
 
     root_path = params.get("root_path", "")
     if not root_path:
         return {"error": "Missing required param: root_path"}
+
+    # 尝试解析为已知目录名
+    try:
+        root_path = str(get_known_folder(root_path))
+    except (ValueError, OSError):
+        pass  # 不是已知目录名，当做原始路径使用
 
     return scan_and_summarize(root_path)
 
@@ -108,9 +115,17 @@ def handle_migrate(params: dict) -> dict:
     action = params.get("action", "")
 
     if action == "create_plan":
+        from backend.utils.known_folders import get_known_folder
+        source = params["source"]
+        target = params["target"]
+        # 解析已知目录名 → 绝对路径
+        try:
+            source = str(get_known_folder(source))
+        except (ValueError, OSError):
+            pass
         plan = create_migration_plan(
-            source=params["source"],
-            target=params["target"],
+            source=source,
+            target=target,
             filters=params.get("filters"),
         )
         return {"plan": plan}
@@ -176,6 +191,9 @@ def handle_query(params: dict) -> dict:
     elif qtype == "migration_history":
         return {"history": _query_migration_history()}
 
+    elif qtype == "known_folders":
+        return {"folders": _query_known_folders()}
+
     elif qtype == "dashboard":
         return {
             "disks": _query_disk_usage(),
@@ -220,6 +238,26 @@ def _query_disk_usage() -> list[dict]:
         })
 
     return results
+
+
+def _query_known_folders() -> dict:
+    """返回已知目录名 → 绝对路径映射。"""
+    from backend.utils.known_folders import get_known_folder
+    folders = {}
+    for name in ["Desktop", "Downloads", "Documents", "Pictures", "Music", "Videos"]:
+        try:
+            folders[name] = str(get_known_folder(name))
+        except Exception:
+            folders[name] = ""
+    # 加中文别名
+    name_map = {
+        "Desktop": "桌面", "Downloads": "下载", "Documents": "文档",
+        "Pictures": "图片", "Music": "音乐", "Videos": "视频",
+    }
+    for eng, chn in name_map.items():
+        if eng in folders:
+            folders[chn] = folders[eng]
+    return folders
 
 
 def _query_migration_history() -> list[dict]:

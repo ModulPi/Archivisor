@@ -40,12 +40,14 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  min-width: 0;  /* 防止flex子元素撑开 */
 }
 
 .app-main {
   flex: 1;
   overflow-y: auto;
-  padding: 0 32px 24px;
+  overflow-x: hidden;
+  padding: 0 32px 32px;
 }
 
 /* ---- Loading ---- */
@@ -376,12 +378,13 @@ body {
 
 /* ---- Table ---- */
 
-.table-wrapper { overflow-x: auto; margin-top: 16px; }
+.table-wrapper { overflow-x: hidden; margin-top: 16px; }
 
 .data-table {
   width: 100%;
   border-collapse: collapse;
   font-size: 13px;
+  table-layout: fixed;
 }
 
 .data-table th {
@@ -390,16 +393,19 @@ body {
   color: var(--text-secondary);
   font-weight: 600;
   border-bottom: 1px solid var(--border);
-  white-space: nowrap;
 }
 
 .data-table td {
   padding: 8px 10px;
   border-bottom: 1px solid rgba(255,255,255,0.04);
-  white-space: nowrap;
 }
 
-.td-path { max-width: 300px; overflow: hidden; text-overflow: ellipsis; }
+.td-path { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.td-path-col { width: 35%; }
+.td-num { width: 60px; text-align: center; }
+.td-status { width: 80px; }
+.td-time { width: 140px; }
+.td-action { width: 90px; }
 
 /* ---- Tags ---- */
 
@@ -445,6 +451,7 @@ body {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
+  max-width: 100%;
 }
 
 .card {
@@ -452,6 +459,8 @@ body {
   border: 1px solid var(--border);
   border-radius: var(--radius);
   padding: 20px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .card:first-child { grid-column: 1 / -1; }

@@ -68,7 +68,12 @@ const RollbackPage: React.FC<Props> = ({ backendOnline }) => {
 
   return (
     <div className="page">
-      <h2 className="page-title">迁移历史</h2>
+      <div className="dashboard-header">
+        <h2 className="page-title" style={{marginBottom:0}}>迁移历史</h2>
+        <button onClick={loadHistory} disabled={loading} className="btn-refresh">
+          {loading ? '刷新中...' : '刷新列表'}
+        </button>
+      </div>
       <p className="page-desc">查看历史迁移记录，必要时可一键回滚。</p>
 
       {loading && <div className="progress-info"><div className="spinner" /><span>加载中...</span></div>}
@@ -83,12 +88,12 @@ const RollbackPage: React.FC<Props> = ({ backendOnline }) => {
           <table className="data-table">
             <thead>
               <tr>
-                <th>源目录</th>
-                <th>目标</th>
-                <th>文件数</th>
-                <th>状态</th>
-                <th>时间</th>
-                <th>操作</th>
+                <th className="td-path-col">源目录</th>
+                <th className="td-path-col">目标</th>
+                <th className="td-num">文件数</th>
+                <th className="td-status">状态</th>
+                <th className="td-time">时间</th>
+                <th className="td-action">操作</th>
               </tr>
             </thead>
             <tbody>
@@ -96,12 +101,12 @@ const RollbackPage: React.FC<Props> = ({ backendOnline }) => {
                 const st = statusLabel(item.status)
                 return (
                   <tr key={item.id}>
-                    <td className="td-path" title={item.source_path}>{item.source_path}</td>
-                    <td className="td-path" title={item.target_path}>{item.target_path}</td>
-                    <td>{item.file_count}</td>
-                    <td><span className={`tag ${st.cls}`}>{st.text}</span></td>
-                    <td>{item.created_at ? new Date(item.created_at * 1000).toLocaleString('zh-CN') : '-'}</td>
-                    <td>
+                    <td className="td-path td-path-col" title={item.source_path}>{item.source_path}</td>
+                    <td className="td-path td-path-col" title={item.target_path}>{item.target_path}</td>
+                    <td className="td-num">{item.file_count}</td>
+                    <td className="td-status"><span className={`tag ${st.cls}`}>{st.text}</span></td>
+                    <td className="td-time">{item.created_at ? new Date(item.created_at * 1000).toLocaleString('zh-CN') : '-'}</td>
+                    <td className="td-action">
                       {item.status === 'committed' && (
                         confirmId === item.id ? (
                           <span className="confirm-group">

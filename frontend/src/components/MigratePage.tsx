@@ -47,7 +47,8 @@ const MigratePage: React.FC<Props> = ({ backendOnline }) => {
     setError('')
     try {
       const filters = fileFilter ? fileFilter.split(',') : undefined
-      const resp = await createMigrationPlan(source, targetDrive, filters)
+      const targetPath = targetDrive + '\\ArchivisorArchive'
+      const resp = await createMigrationPlan(source, targetPath, filters)
       setPlan(resp.plan)
       setPlanId(resp.plan.plan_id)
       setStep('plan')
