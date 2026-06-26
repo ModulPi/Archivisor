@@ -13,6 +13,7 @@ const ITEMS: { key: PageKey; label: string; icon: string }[] = [
   { key: 'migrate',   label: '迁移', icon: '📦' },
   { key: 'rollback',  label: '回滚', icon: '↩️ ' },
   { key: 'cleanup',   label: '清理', icon: '🧹' },
+  { key: 'agent',     label: 'AI 助手', icon: '🤖' },
 ]
 
 const Sidebar: React.FC<Props> = ({ current, onNavigate, backendOnline }) => {

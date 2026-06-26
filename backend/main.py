@@ -446,6 +446,93 @@ def _query_unmigrated() -> dict:
     }
 
 
+# ---- agent (MVP2) ----
+
+def handle_agent_process(params: dict) -> dict:
+    """
+    Agent 自然语言处理。
+    params: {"query": "把下载文件夹里上个月的PDF移到D盘"}
+    """
+    from backend.agent.plan_generator import process_query
+
+    query = params.get("query", "")
+    if not query or not query.strip():
+        return {"success": False, "error": "Missing required param: query"}
+    return process_query(query)
+
+
+def handle_agent_context(params: dict) -> dict:
+    """
+    查询/清空对话上下文。
+    params: {"action": "get" | "clear"}
+    """
+    action = params.get("action", "get")
+    if action == "clear":
+        from backend.agent.plan_generator import clear_context
+        clear_context()
+        return {"action": "clear", "ok": True}
+    else:
+        from backend.agent.plan_generator import get_conversation_context
+        return {"context": get_conversation_context()}
+
+
+def handle_agent_usage(params: dict) -> dict:
+    """
+    查询 DeepSeek API 日调用量。
+    """
+    from backend.agent.deepseek_client import get_usage_stats
+    return get_usage_stats()
+
+
+def handle_agent_search(params: dict) -> dict:
+    """
+    混合语义搜索。
+    params: {"query": "找合同PDF", "limit": 10}
+    """
+    from backend.agent.search_engine import hybrid_search
+
+    query = params.get("query", "")
+    limit = params.get("limit", 10)
+    if not query.strip():
+        return {"results": [], "error": "Empty query"}
+    return hybrid_search(query, limit)
+
+
+def handle_agent_suggest(params: dict) -> dict:
+    """
+    主动建议检查。
+    params: {}  — 检查所有触发条件
+    """
+    from backend.agent.proactive_advisor import check_suggestions
+    return check_suggestions()
+
+
+def handle_agent_cleanup_analysis(params: dict) -> dict:
+    """
+    智能清理分析。
+    params: {"limit": 20}
+    """
+    from backend.agent.cleanup_analyzer import analyze_cleanup_candidates
+
+    limit = params.get("limit", 20)
+    return analyze_cleanup_candidates(limit)
+
+
+def handle_agent_behavior_update(params: dict) -> dict:
+    """
+    更新行为基线。
+    params: {"directory": "...", "file_count": 100, "total_size": 1073741824}
+    """
+    from backend.agent.proactive_advisor import update_behavior_stats
+
+    directory = params.get("directory", "")
+    file_count = params.get("file_count", 0)
+    total_size = params.get("total_size", 0)
+    if not directory:
+        return {"error": "Missing required param: directory"}
+    return update_behavior_stats(directory, file_count, total_size)
+
+
 # ---- heartbeat probe ----
 
 def handle_ping(params: dict) -> dict:
@@ -463,6 +550,13 @@ METHOD_TABLE: dict[str, callable] = {
     "rollback": handle_rollback,
     "query": handle_query,
     "ping": handle_ping,
+    "agent.process": handle_agent_process,
+    "agent.context": handle_agent_context,
+    "agent.usage": handle_agent_usage,
+    "agent.search": handle_agent_search,
+    "agent.suggest": handle_agent_suggest,
+    "agent.cleanup_analysis": handle_agent_cleanup_analysis,
+    "agent.behavior_update": handle_agent_behavior_update,
 }
 
 

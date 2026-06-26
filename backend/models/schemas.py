@@ -113,3 +113,46 @@ class DashboardData(BaseModel):
     disk_usages: list[DiskUsage]
     top_large_files: list[TopLargeFile]
     unmigrated: UnmigratedSummary
+
+
+# ---------------------------------------------------------------------------
+# Agent 模型（MVP2）
+# ---------------------------------------------------------------------------
+
+class AgentIntent(BaseModel):
+    """意图识别结果。"""
+    intent: str  # "move" | "search" | "cleanup" | "analyze" | "clarify"
+    confidence: float
+    matched_keywords: list[str] = []
+
+
+class AgentSlot(BaseModel):
+    """提取的参数槽位。"""
+    source: str | None = None
+    target: str | None = None
+    filter: str | None = None
+    time_range: list[str] | None = None
+
+
+class AgentPlan(BaseModel):
+    """Agent 生成的执行计划（预览用，非数据库记录）。"""
+    plan_id: str
+    intent: str
+    operations: list[MigrationOperation]
+    source_path: str | None = None
+    target_path: str | None = None
+    estimated_file_count: int | None = None
+    estimated_size: int | None = None
+    requires_confirmation: bool = True
+    explanation: str = ""
+
+
+class AgentResponse(BaseModel):
+    """Agent 完整响应。"""
+    success: bool
+    intent: str | None = None
+    confidence: float | None = None
+    plan: AgentPlan | None = None
+    clarification: str | None = None
+    fallback_used: bool = False
+    error: str | None = None

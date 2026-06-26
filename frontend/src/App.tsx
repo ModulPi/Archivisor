@@ -5,9 +5,11 @@ import ScanPage from './components/ScanPage'
 import MigratePage from './components/MigratePage'
 import RollbackPage from './components/RollbackPage'
 import CleanupPage from './components/CleanupPage'
-import { ping, queryDiskUsage, searchFiles } from './services/backend'
+import AgentChat from './components/AgentChat'
+import { ping, queryDiskUsage, searchFiles, agentSuggest } from './services/backend'
+import type { Suggestion } from './services/backend'
 
-export type PageKey = 'dashboard' | 'scan' | 'migrate' | 'rollback' | 'cleanup'
+export type PageKey = 'dashboard' | 'scan' | 'migrate' | 'rollback' | 'cleanup' | 'agent'
 
 export interface NavigateTarget {
   page: PageKey
@@ -46,17 +48,27 @@ const App: React.FC = () => {
     return () => { cancelled = true }
   }, [])
 
-  // C 盘空间轮询
+  // 空间 + Agent 主动建议轮询
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+
   useEffect(() => {
     if (!backendOnline) return
     const check = async () => {
       try {
+        // 磁盘空间检查
         const r = await queryDiskUsage()
         const cdisk = r.disks.find((d: any) => d.mountpoint === 'C:')
         if (cdisk && cdisk.free_gb < 10) {
           setSpaceWarning(`C盘仅剩 ${cdisk.free_gb.toFixed(1)} GB，建议迁移文件释放空间`)
         } else {
           setSpaceWarning('')
+        }
+        // Agent 主动建议
+        const sugResult = await agentSuggest()
+        if (sugResult.has_suggestions) {
+          setSuggestions(sugResult.suggestions)
+        } else {
+          setSuggestions([])
         }
       } catch {}
     }
@@ -107,6 +119,7 @@ const App: React.FC = () => {
       case 'migrate':   return <MigratePage backendOnline={backendOnline} initialParams={pageParams} />
       case 'rollback':  return <RollbackPage backendOnline={backendOnline} />
       case 'cleanup':   return <CleanupPage backendOnline={backendOnline} navigateTo={navigateTo} />
+      case 'agent':     return <AgentChat backendOnline={backendOnline} navigateTo={navigateTo} />
     }
   }
 
@@ -155,6 +168,24 @@ const App: React.FC = () => {
             <button className="btn-mini" onClick={() => navigateTo('migrate')}>去迁移</button>
           </div>
         )}
+
+        {/* Agent 主动建议 */}
+        {suggestions.map((sug, idx) => (
+          <div key={idx} className={`suggestion-banner suggestion-${sug.severity}`}>
+            <span className="suggestion-title">{sug.title}</span>
+            <span className="suggestion-detail">{sug.detail}</span>
+            <button
+              className="btn-mini"
+              onClick={() => {
+                if (sug.action === 'migrate') navigateTo('migrate')
+                else if (sug.action === 'scan') navigateTo('scan')
+                else navigateTo('agent')
+              }}
+            >
+              {sug.action_label}
+            </button>
+          </div>
+        ))}
 
         {backendError && (
           <div className="app-error-banner">

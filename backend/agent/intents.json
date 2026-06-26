@@ -1,0 +1,32 @@
+[
+  {
+    "id": "move",
+    "display": "移动/归档文件",
+    "api": "migrate",
+    "keywords": ["移动", "归档", "整理", "搬到", "归类", "迁移", "移", "挪", "转移", "搬走", "挪到", "移到", "移动到", "挪到", "搬"],
+    "slot_hints": {
+      "filter": "\\.(pdf|docx?|xlsx?|pptx?|txt|zip|rar|7z|jpg|png|gif|mp4|mkv|mp3)$"
+    }
+  },
+  {
+    "id": "search",
+    "display": "搜索文件",
+    "api": "query",
+    "keywords": ["找", "搜索", "定位", "哪里", "在哪儿", "查找", "在哪", "有没有", "搜", "找找", "帮我找", "找一下"],
+    "slot_hints": {}
+  },
+  {
+    "id": "cleanup",
+    "display": "清理文件/释放空间",
+    "api": "query",
+    "keywords": ["清理", "删除", "释放", "空间", "腾出", "清除", "回收", "清空", "扫除", "清掉", "干掉"],
+    "slot_hints": {}
+  },
+  {
+    "id": "analyze",
+    "display": "分析/查看概况",
+    "api": "query",
+    "keywords": ["分析", "扫描", "查看", "统计", "看看", "检查", "概况", "怎么样", "多少", "多大", "还剩", "占用"],
+    "slot_hints": {}
+  }
+]

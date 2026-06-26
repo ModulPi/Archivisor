@@ -149,3 +149,111 @@ export function queryDuplicates(drive?: string): Promise<{ duplicates: Array<{ s
 export function queryTempFiles(drive?: string): Promise<{ temp_files: Array<{ id: number; name: string; path: string; size: number }> }> {
   return rpc('query', { type: 'temp_files', drive: drive || '' })
 }
+
+// ---------------------------------------------------------------------------
+// Agent 相关（MVP2）
+// ---------------------------------------------------------------------------
+
+export interface AgentOperation {
+  type: string
+  path?: string | null
+  extensions?: string[] | null
+  time_range?: string[] | null
+  target_root?: string | null
+}
+
+export interface AgentPlan {
+  plan_id: string
+  intent: string
+  operations: AgentOperation[]
+  source_path: string | null
+  target_path: string | null
+  estimated_file_count: number | null
+  estimated_size: number | null
+  requires_confirmation: boolean
+  explanation: string
+}
+
+export interface AgentResponse {
+  success: boolean
+  intent: string | null
+  confidence: number | null
+  plan: AgentPlan | null
+  clarification: string | null
+  fallback_used: boolean
+  error: string | null
+}
+
+export interface AgentUsage {
+  daily_count: number
+  daily_limit: number
+  remaining: number
+}
+
+/** Agent: 自然语言处理 */
+export function agentProcess(query: string): Promise<AgentResponse> {
+  return rpc<AgentResponse>('agent.process', { query })
+}
+
+/** Agent: 查询/清空对话上下文 */
+export function agentContext(action: 'get' | 'clear' = 'get'): Promise<{ context?: Array<{ query: string; intent: string; slots: Record<string, any> }>; ok?: boolean }> {
+  return rpc('agent.context', { action })
+}
+
+/** Agent: 查询 API 用量 */
+export function agentUsage(): Promise<AgentUsage> {
+  return rpc<AgentUsage>('agent.usage')
+}
+
+/** Agent: 混合语义搜索 */
+export function agentSearch(query: string, limit: number = 10): Promise<{
+  results: Array<{
+    id: number; name: string; path: string; size: number
+    extension: string; match_source: string; rrf_score: number
+  }>
+  method: string
+  bm25_hits: number
+  semantic_hits: number
+}> {
+  return rpc('agent.search', { query, limit })
+}
+
+export interface Suggestion {
+  type: string
+  title: string
+  detail: string
+  severity: 'warning' | 'info'
+  action: string
+  action_label: string
+}
+
+/** Agent: 主动建议检查 */
+export function agentSuggest(): Promise<{
+  suggestions: Suggestion[]
+  has_suggestions: boolean
+  checked_at: number
+}> {
+  return rpc('agent.suggest')
+}
+
+export interface CleanupCandidate {
+  id: number
+  name: string
+  path: string
+  size: number
+  size_mb: number
+  extension: string
+  reason: string
+  safe_to_delete: boolean
+}
+
+/** Agent: 智能清理分析 */
+export function agentCleanupAnalysis(limit: number = 20): Promise<{
+  candidates: CleanupCandidate[]
+  total_waste_gb: number
+  candidate_count: number
+  analysis: string
+  fallback_used: boolean
+}> {
+  return rpc('agent.cleanup_analysis', { limit })
+}

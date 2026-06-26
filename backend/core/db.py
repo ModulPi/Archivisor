@@ -97,6 +97,33 @@ CREATE TABLE IF NOT EXISTS migration_manifest (
 );
 
 CREATE INDEX IF NOT EXISTS idx_manifest_status ON migration_manifest (status);
+
+-- 文件名 Embedding 缓存表（用于语义搜索，存 JSON 数组）
+CREATE TABLE IF NOT EXISTS file_embeddings (
+    file_id         INTEGER PRIMARY KEY,
+    embedding_json  TEXT NOT NULL,                      -- JSON float 数组
+    model           TEXT DEFAULT 'deepseek',
+    created_at      REAL DEFAULT (strftime('%s', 'now')),
+    FOREIGN KEY (file_id) REFERENCES file_metadata(id) ON DELETE CASCADE
+);
+
+CREATE INDEX IF NOT EXISTS idx_embeddings_file ON file_embeddings (file_id);
+
+-- 行为基线统计表（用于主动建议）
+CREATE TABLE IF NOT EXISTS behavior_stats (
+    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+    directory       TEXT UNIQUE NOT NULL,               -- 监控的目录路径
+    file_count      INTEGER DEFAULT 0,                  -- 累计文件数
+    total_size      INTEGER DEFAULT 0,                  -- 累计大小（字节）
+    write_events    INTEGER DEFAULT 0,                  -- 写入事件次数
+    last_write_at   REAL,                               -- 上次写入时间戳
+    last_suggest_at REAL,                               -- 上次建议时间戳（24h冷却）
+    baseline_mean   REAL DEFAULT 0,                     -- 历史写入量均值
+    baseline_std    REAL DEFAULT 0,                     -- 历史写入量标准差
+    sample_count    INTEGER DEFAULT 0                   -- 采样次数
+);
+
+CREATE INDEX IF NOT EXISTS idx_behavior_dir ON behavior_stats (directory);
 """
 
 
